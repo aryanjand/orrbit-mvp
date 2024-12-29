@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  // shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum Plan {
+  FREE       
+  PAID       
+  TRIAL      
+}
+
+enum StorageTier {
+  GB_5       // 5 GB storage
+  GB_10      // 10 GB storage
+  GB_15      // 15 GB storage
+  GB_100     // 100 GB storage
+  GB_250     // 250 GB storage
+  GB_500     // 500 GB storage
+  TB_1       // 1 TB storage
+  TB_2       // 2 TB storage
+}
+
+
+model Account {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt()
+
+  ownerId     String
+  owner       User        @relation(fields: [ownerId], references: [id])
+
+  albums      Album[]     // 2 Album will be created by default All_Photos, Fav
+
+  plan        Plan        
+  storageTier StorageTier
+
+  @@index([ownerId])
+  @@unique([ownerId]) 
+}
+
+
+model User {
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+
+  accounts       Account[]
+}
+
+enum AlbumType {
+  ALL_PHOTOS
+  FAVORITE_PHOTOS
+  USER_SELECT_PHOTOS
+}
+
+model Album { 
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+
+  type          AlbumType   
+
+  accountId     String 
+  account       Account     @relation(fields: [accountId], references: [id])
+
+  photoAlbums   PhotoAlbum[]
+
+  @@index([accountId])
+}
+
+model PhotoAlbum {
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+
+  albumId       String
+  album         Album       @relation(fields: [albumId], references: [id])
+
+  photoId       String
+  photo         Photo       @relation(fields: [photoId], references: [id])
+
+  @@unique([albumId, photoId])
+  @@index([albumId, photoId])
+
+}
+
+
+model Photo {
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+
+  picture       String // S3 link
+  isFavorite    Boolean     @default(false)
+
+  photoAlbums   PhotoAlbum[]
+}
