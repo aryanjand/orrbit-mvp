@@ -1,15 +1,27 @@
-import '@/styles/globals.css';
-import type { AppProps } from 'next/app';
-import { trpc } from '@/utils/trpc';
-import { UserProvider } from '@auth0/nextjs-auth0/client';
+import type { NextPage } from 'next';
+import type { AppType, AppProps } from 'next/app';
+import type { ReactElement, ReactNode } from 'react';
 
-const App = ({ Component, pageProps }: AppProps) => {
-  return (
-    <UserProvider>
-      <Component {...pageProps} />
-    </UserProvider>
-  );
+import { DefaultLayout } from '~/components/DefaultLayout';
+import { trpc } from '~/utils/trpc';
+import '~/styles/globals.css';
+
+export type NextPageWithLayout<
+  TProps = Record<string, unknown>,
+  TInitialProps = TProps,
+> = NextPage<TProps, TInitialProps> & {
+  getLayout?: (page: ReactElement) => ReactNode;
 };
 
-// Wrap the export of the main app with tRPC's withTRPC() function
-export default trpc.withTRPC(App);
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
+  const getLayout =
+    Component.getLayout ?? ((page) => <DefaultLayout>{page}</DefaultLayout>);
+
+  return getLayout(<Component {...pageProps} />);
+}) as AppType;
+
+export default trpc.withTRPC(MyApp);

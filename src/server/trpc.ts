@@ -7,12 +7,12 @@
  * @see https://trpc.io/docs/v11/router
  * @see https://trpc.io/docs/v11/procedures
  */
-import { initTRPC, TRPCError } from '@trpc/server';
-import { transformer } from '@/utils/transformer';
-import { TRPCContext } from './context';
 
+import { initTRPC } from '@trpc/server';
+import { transformer } from '~/utils/transformer';
+import type { Context } from './context';
 
-const t = initTRPC.context<TRPCContext>().create({
+const t = initTRPC.context<Context>().create({
   /**
    * @see https://trpc.io/docs/v11/data-transformers
    */
@@ -43,18 +43,8 @@ export const publicProcedure = t.procedure;
  */
 export const mergeRouters = t.mergeRouters;
 
-
-export const protectedProcedure = t.procedure.use(async (opts) => {
-  if (!opts.ctx.user) {
-    throw new TRPCError({
-      code: 'UNAUTHORIZED',
-      message: 'User not Authenticated',
-    });
-  }
-  return opts.next({
-    ctx: {
-      ...opts.ctx,
-      user: opts.ctx.user,
-    },
-  });
-});
+/**
+ * Create a server-side caller
+ * @see https://trpc.io/docs/v11/server/server-side-calls
+ */
+export const createCallerFactory = t.createCallerFactory;
