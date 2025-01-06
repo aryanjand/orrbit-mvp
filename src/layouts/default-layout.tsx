@@ -1,3 +1,4 @@
+import { Header } from '@/components/header';
 import Head from 'next/head';
 import type { ReactNode } from 'react';
 
@@ -7,11 +8,14 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   return (
     <>
       <Head>
-        <title>Prisma Starter</title>
+        <title>Orrbit</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="h-screen">{children}</main>
+      <main className="h-screen">
+        <Header />
+        {children}
+      </main>
     </>
   );
 };

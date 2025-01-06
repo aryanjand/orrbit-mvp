@@ -1,7 +1,7 @@
 // @ts-check
 
+import { env } from '@/server/env';
 import { NextConfig } from 'next';
-import { env } from './src/server/env';
 
 /**
  * @see https://nextjs.org/docs/api-reference/next.config.js/introduction
